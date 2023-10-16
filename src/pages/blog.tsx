@@ -5,34 +5,54 @@ import { StaticQueryDocument, graphql } from "gatsby";
 
 interface BlogPagePropTypes {
   data: {
-    allFile: {
-      nodes: {name: string}[]
-    }
-  }
+    allMdx: {
+      nodes: {
+        frontmatter: {
+        date: string,
+        title: string,
+      },
+      id: string,
+      excerpt: string,
+      parent: {
+        modifiedTime: string
+      }
+    }[];
+    };
+  };
 }
 
-const BlogPage = ({data}: BlogPagePropTypes) => {
-  console.log(data)
+const BlogPage = ({ data }: BlogPagePropTypes) => {
+  console.log(data);
   return (
     <Layout pageTitle="My Blog Posts">
-      <ul>
-        {
-          data.allFile.nodes.map((node: any) => (
-            <li key={node.name}>
-              {node.name}
-            </li>
-          ))
-        }
-      </ul>
+      {
+        data.allMdx.nodes.map((node) => (
+          <article key={node.id}>
+            <h2>{node.frontmatter.title}</h2>
+            <p>Posted: {node.frontmatter.date}</p>
+            <p>{node.excerpt}</p>
+          </article>
+        ))
+      }
     </Layout>
   );
 };
 
 export const query = graphql`
   query {
-    allFile {
+    allMdx(sort: { frontmatter: { date: DESC } }) {
       nodes {
-        name
+        frontmatter {
+          date(formatString: "YYYY.MM.DD")
+          title
+        }
+        id
+        excerpt
+        parent {
+          ... on File {
+            modifiedTime(formatString: "YYYY.MM.DD")
+          }
+        }
       }
     }
   }
