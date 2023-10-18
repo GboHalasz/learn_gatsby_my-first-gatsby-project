@@ -1,7 +1,7 @@
 import * as React from "react";
-import Layout from "../components/layout";
-import Seo from "../components/seo";
-import { StaticQueryDocument, graphql } from "gatsby";
+import Layout from "../../components/layout";
+import Seo from "../../components/seo";
+import { Link, graphql } from "gatsby";
 
 interface BlogPagePropTypes {
   data: {
@@ -10,6 +10,7 @@ interface BlogPagePropTypes {
         frontmatter: {
         date: string,
         title: string,
+        slug:string
       },
       id: string,
       excerpt: string,
@@ -22,16 +23,18 @@ interface BlogPagePropTypes {
 }
 
 const BlogPage = ({ data }: BlogPagePropTypes) => {
-  console.log(data);
   return (
     <Layout pageTitle="My Blog Posts">
       {
         data.allMdx.nodes.map((node) => (
           <article key={node.id}>
-            <h2>{node.frontmatter.title}</h2>
+            <h2>
+              <Link to={`/blog/${node.frontmatter.slug}`}>
+                {node.frontmatter.title}
+              </Link>
+            </h2>
             <p>Posted: {node.frontmatter.date}</p>
-            <p>{node.excerpt}</p>
-          </article>
+                      </article>
         ))
       }
     </Layout>
@@ -45,14 +48,9 @@ export const query = graphql`
         frontmatter {
           date(formatString: "YYYY.MM.DD")
           title
+          slug
         }
-        id
-        excerpt
-        parent {
-          ... on File {
-            modifiedTime(formatString: "YYYY.MM.DD")
-          }
-        }
+        id        
       }
     }
   }
